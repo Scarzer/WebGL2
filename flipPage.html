@@ -9,11 +9,11 @@
     <title>Page Flipping</title>
 </head>
 <body>
-    <h1>Homework 2: Page Flip</h1>
-    <canvas id="pageFlip" width="800" height="800"></canvas>
-    <h1>Mouse X: <span id="mouseXID"></span></h1>
-    <h1>Mouse Y: <span id="mouseYID"></span></h1>
-    <script type="x-shader/x-vertex" id="pageFlip-vertex">
+<h1>Homework 2: Page Flip</h1>
+<canvas id="pageFlip" width="800" height="800"></canvas>
+<h1>Mouse X: <span id="mouseXID"></span></h1>
+<h1>Mouse Y: <span id="mouseYID"></span></h1>
+<script type="x-shader/x-vertex" id="pageFlip-vertex">
         attribute vec4 vPosition;
         void main(){
             gl_Position = vPosition;
@@ -21,12 +21,12 @@
     </script>
 
 
-    <script type="x-shader/x-fragment" id="pageFlip-fragment">
+<script type="x-shader/x-fragment" id="pageFlip-fragment">
         void main(){
             gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
         }
     </script>
-    <script src="./flipPage.js"></script>
+<script src="./flipPage.js"></script>
 
 </body>
 </html>
