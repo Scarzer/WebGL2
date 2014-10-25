@@ -1,19 +1,32 @@
 /**
  * Created by scarzer on 10/19/14.
  */
-var Page = function(xStart, yStart, width, length){
-    this.squareBuffer = gl.createBuffer();
+var Page = function(xStart, yStart, width, length) {
+    this.leftPageBuffer = gl.createBuffer();
+    this.rightPageBuffer = gl.createBuffer();
+    this.rightPageVertexNum = 4;
     this.width = width;
     this.length = length;
     this.xStart = xStart;
     this.yStart = yStart;
 
-    this.square = new Float32Array([
-            xStart-width, yStart+length,
-            xStart+width, yStart+length,
-            xStart+width, yStart-length,
-            xStart-width, yStart-length
+};
+
+Page.prototype.init = function initPage(){
+    this.leftPage = new Float32Array([
+        this.xStart, this.yStart+this.length,
+        this.xStart -this.width, this.yStart+this.length,
+        this.xStart -this.width, this.yStart-this.length,
+        this.xStart, this.yStart-this.length
     ]);
+
+    this.rightPage = new Float32Array([
+        this.xStart, this.yStart +  this.length,
+        this.xStart+ this.width,    this.yStart+this.length,
+        this.xStart+ this.width,    this.yStart-this.length,
+        this.xStart, this.yStart -  this.length
+    ]);
+    this.rightPageVertexNum = this.rightPage.length / 2;
     this.refreshPage()
 };
 
@@ -27,27 +40,61 @@ Page.prototype.refreshPage = function refreshPage(){
     }
 
     // Buffer stuffing and sending and drawing
-    gl.bindBuffer( gl.ARRAY_BUFFER, this.squareBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, this.square, gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(vPosition);
-    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
 
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.LINE_LOOP, 0, 4);
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.leftPageBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, this.leftPage, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(vPosition);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.LINE_LOOP,0,4);
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.rightPageBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, this.rightPage, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(vPosition);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.LINE_LOOP, 0, this.rightPageVertexNum);
+
 };
 
 Page.prototype.cornerUpdate = function cornerUpdate(x, y){
 
-    // Case when the mouse is to the far right of the square
-    if( x > (this.xStart+this.width) || x < (this.xStart - this.width) ){
-        console.log("OUUTTT");
+    // Figure out where the mouse is!
+    if(x >= this.xStart && x < this.xStart+this.width){
+        if(y > this.yStart+this.length){
+            console.log("We're above the page");
+            this.init();
+        }
+        else if(y < this.yStart-this.length){
+            console.log("We're below the page");
+            this.init();
+        }
+        else{
+            var dY = - ((this.yStart-this.length) - (this.length - y));
+            var dX = ((this.width - x) - this.xStart+this.width) ;
+
+            var b  = (Math.pow(dX, 2) + Math.pow(dY, 2))/ (2*dY) ;
+            var a  = dY - b;
+            console.log("dy: " + dY + " " + "dx: " + dX);
+
+            this.rightPage = new Float32Array([
+                this.xStart, this.yStart+this.length,
+                this.xStart+this.width, this.yStart+this.length,
+                this.xStart+this.width, (y+a),
+                x - ( a/(dX*dY) ), this.yStart-this.length,
+                this.xStart, this.yStart-this.length
+            ]);
+            this.rightPageVertexNum = this.rightPage.length/2;
+            this.refreshPage();
+        }
     }
-    // Case for when the mouse is inside the square
-    else if( y > this.yStart+this.length|| y < this.yStart-this.length){
-        console.log("WE ARE OUTSIDE!!!");
+    else if(x <= this.xStart && x > this.xStart-this.width){
+        console.log("We're on the left side of the page");
+        this.init()
     }
+
     else{
-        console.log("We're inside the square")
+        console.log("I have NO IDEA why you would ever be in here O_O");
+        this.init();
     }
 
 };
@@ -61,7 +108,9 @@ compileShaders(gl, "pageFlip-vertex", "pageFlip-fragment");
 
 gl.clearColor(0,0,0,1);
 gl.clear(gl.COLOR_BUFFER_BIT);
-var flipPage = new Page(0, 0,.3,.3);
+
+// Create the page!
+var flipPage = new Page(0, 0,.4,.3);
 
 canvas.onmousemove = function(e){
     var x, y;
@@ -77,9 +126,6 @@ canvas.onmousemove = function(e){
 
 };
 
-// WebGL Stuff
-//drawSquare(0.15,-0.15);
-
 
 // My own convience function :D
 function compileShaders(ctx, vShaderID, fShaderID){
@@ -90,5 +136,5 @@ function compileShaders(ctx, vShaderID, fShaderID){
     if(!fShaderSrc) return console.error("Error getting fShader");
 
     initShaders(ctx, vShaderSrc, fShaderSrc)
-}
+};
 
