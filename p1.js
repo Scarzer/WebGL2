@@ -1,51 +1,17 @@
-var VSHADER_SOURCE=
-'precision mediump float;\n'+
-'attribute vec4 a_Position;\n' +
-'varying vec4 v_FragColor;\n'+
-'attribute vec4 a_FragColor;\n'+
-'float d;\n' +
-'uniform float u_theta;\n' +
-'uniform float u_twist;\n' +
-'void main() {\n' +
-	'if(u_twist==1.0) { \n' +
-	'd = sqrt(a_Position.x * a_Position.x + a_Position.y * a_Position.y);}\n' +
-	'else d=1.0;\n' +
-		//'gl_Position = Rotated a_Position;' +
-	'gl_Position.x = a_Position.x*cos(d*u_theta) - a_Position.y*sin(d*u_theta);\n' +
-	'gl_Position.y = a_Position.x*sin(d*u_theta) + a_Position.y*cos(d*u_theta);\n' +
-	'gl_Position.z = a_Position.z;\n' +
-	'gl_Position.w = 1.0;\n' +
-		//assign varying fragcolor from colorBuffer
-	'v_FragColor = a_FragColor;\n' +
-'}\n';
-
-var FSHADER_SOURCE=
-'precision mediump float;\n'+
-'varying vec4 v_FragColor;\n'+
-'void main() {\n'+
-'gl_FragColor= v_FragColor;\n'+
-'}\n';
-
 function main() {
 
 		//Init gl
 	var canvas = document.getElementById('canv');
 	gl = getWebGLContext(canvas);
-	if(!gl) {
-		console.log('Failed to get rendering context for WebGL');
-		return;
-	}
-	if(!initShaders(gl,VSHADER_SOURCE,FSHADER_SOURCE)) {
-		console.log("Could not form shaders.");
-		return;
-	}
+	initShaders(gl,"twist2-vertex","twist2-fragment");
 
 
 	//shader-tied variables
 	theta=gl.getUniformLocation(gl.program, 'u_theta');
-		gl.uniform1f(theta,0.0);
+    gl.uniform1f(theta,0.0);
+
 	twist=gl.getUniformLocation(gl.program, 'u_twist');
-		gl.uniform1f(twist,0.0);
+    gl.uniform1f(twist,0.0);
 
 	//internal js side variables
 	g_theta=0.0;
@@ -189,6 +155,19 @@ function subDivide(n,a,b,c) {
 	}
 
 }
+
+// Shader Compiler
+function compileShaders(ctx, vShaderID, fShaderID){
+
+	var vShaderSrc = document.getElementById(vShaderID).innerHTML;
+	if(!vShaderSrc) return console.error("Error getting vShader");
+
+	var fShaderSrc = document.getElementById(fShaderID).innerHTML;
+	if(!fShaderSrc) return console.error("Error getting fShader");
+
+	initShaders(ctx, vShaderSrc, fShaderSrc)
+};
+
 
 //shamelessly borrowed from internet
 function flatten (toFlatten) {

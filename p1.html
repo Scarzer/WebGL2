@@ -31,28 +31,35 @@
 		</form>
 
 		<script type="x-shader/x-vertex" id="twist2-vertex">
-			precision mediump float;
-			attribute vec4 a_Position;
-			varying vec4 v_FragColor;
-			attribute vec4 a_FragColor;
-			float d;
+        precision mediump float;
+        attribute vec4 a_Position;
+        varying vec4 v_FragColor;
+        attribute vec4 a_FragColor;
+        float d;
         uniform float u_theta;
         uniform float u_twist;
         void main() {
-        if(u_twist==1.0) {
-        d = sqrt(a_Position.x * a_Position.x + a_Position.y * a_Position.y);}
-        else d=1.0;
-        /'gl_Position = Rotated a_Position;
-        gl_Position.x = a_Position.x*cos(d*u_theta) - a_Position.y*sin(d*u_theta);
-        gl_Position.y = a_Position.x*sin(d*u_theta) + a_Position.y*cos(d*u_theta);
-        gl_Position.z = a_Position.z;\n' +
-        gl_Position.w = 1.0;\n' +
-        /assign varying fragcolor from colorBuffer
-        v_FragColor = a_FragColor;\n' +
-                }
+            if(u_twist==1.0) {
+                d = sqrt(a_Position.x * a_Position.x + a_Position.y * a_Position.y);
+			}
+            else d=1.0;
+
+        	// gl_Position = Rotated a_Position;
+        	gl_Position.x = a_Position.x*cos(d*u_theta) - a_Position.y*sin(d*u_theta);
+        	gl_Position.y = a_Position.x*sin(d*u_theta) + a_Position.y*cos(d*u_theta);
+        	gl_Position.z = a_Position.z;
+        	gl_Position.w = 1.0;
+            /assign varying fragcolor from colorBuffer
+            v_FragColor = a_FragColor;
+        }
 		</script>
 		<script type="x-shader/x-fragment" id="twist2-fragement">
+			precision mediump float;
+			vsrying vec4 v_FragColor;
 
+			void main(){
+				gl_FragColor = v_FragColor;
+			}
 		</script>
 		<script src="p1.js"></script>
 	</body>
