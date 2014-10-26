@@ -10,6 +10,15 @@ var Page = function(xStart, yStart, width, length) {
     this.xStart = xStart;
     this.yStart = yStart;
 
+    // Right Quad
+    this.pointA = [this.xStart, this.yStart + this.length];
+    this.pointB = [this.xStart + this.width, this.yStart + this.length];
+    this.pointC = [this.xStart + this.width, this.yStart - this.length];
+    this.pointD = [this.xStart + this.width, this.yStart - this.length];
+    this.pointE = [this.xStart, this.yStart - this.length];
+
+
+    this.init();
 };
 
 Page.prototype.init = function initPage(){
@@ -21,10 +30,10 @@ Page.prototype.init = function initPage(){
     ]);
 
     this.rightPage = new Float32Array([
-        this.xStart, this.yStart +  this.length,
-        this.xStart+ this.width,    this.yStart+this.length,
-        this.xStart+ this.width,    this.yStart-this.length,
-        this.xStart, this.yStart -  this.length
+        this.pointA[0], this.pointA[1],
+        this.pointB[0], this.pointB[1],
+        this.pointC[0], this.pointC[1],
+        this.pointE[0], this.pointE[1]
     ]);
     this.rightPageVertexNum = this.rightPage.length / 2;
     this.refreshPage()
@@ -57,6 +66,19 @@ Page.prototype.refreshPage = function refreshPage(){
 };
 
 Page.prototype.cornerUpdate = function cornerUpdate(x, y){
+    /*
+     What a page looks like WITHOUT adding the flip shape
+     Triangle reaches from point C to mouse to D
+     A-----B
+     |     |
+     |     |
+     |     C
+     |    /
+     E---D
+
+     Points A, and E NEVER change. They can be set as constants
+     This is always a quad, so we can make variables for the points
+     */
 
     // Figure out where the mouse is!
     if(x >= this.xStart && x < this.xStart+this.width){
@@ -69,19 +91,25 @@ Page.prototype.cornerUpdate = function cornerUpdate(x, y){
             this.init();
         }
         else{
-            var dY = - ((this.yStart-this.length) - (this.length - y));
-            var dX = ((this.width - x) - this.xStart+this.width) ;
+            // Validated dY and dX
+            var dY = -1*((this.yStart-this.length) - y);
+            var dX = (this.xStart+this.width)  - x;
+            document.getElementById("dXID").innerHTML = dX.toFixed(3);
+            document.getElementById("dYID").innerHTML = dY.toFixed(3);
 
             var b  = (Math.pow(dX, 2) + Math.pow(dY, 2))/ (2*dY) ;
             var a  = dY - b;
             console.log("dy: " + dY + " " + "dx: " + dX);
+            console.log("a: " + a + " " + "b: " + b);
+            // set point variables
+            this.pointC[1] = y + a;
 
             this.rightPage = new Float32Array([
-                this.xStart, this.yStart+this.length,
-                this.xStart+this.width, this.yStart+this.length,
-                this.xStart+this.width, (y+a),
-                x - ( a/(dX*dY) ), this.yStart-this.length,
-                this.xStart, this.yStart-this.length
+                this.pointA[0], this.pointA[1],
+                this.pointB[0], this.pointB[1],
+                this.pointC[0], this.pointC[1],
+                this.pointD[0], this.pointD[1],
+                this.pointE[0], this.pointE[1]
             ]);
             this.rightPageVertexNum = this.rightPage.length/2;
             this.refreshPage();
@@ -121,8 +149,8 @@ canvas.onmousemove = function(e){
 
     flipPage.cornerUpdate(x, y);
 
-    document.getElementById('mouseXID').innerText=(x);
-    document.getElementById('mouseYID').innerText=(y);
+    document.getElementById('mouseXID').innerText= x.toFixed(3);
+    document.getElementById('mouseYID').innerText= y.toFixed(3);
 
 };
 
