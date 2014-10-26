@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<script src="http://www.magic.ubc.ca/webgl-pg/uploads/examples/lib/webgl-debug.js"></script>
+		<script src="http://www.magic.ubc.ca/webgl-pg/uploads/examples/lib/webgl-utils.js"></script>
+		<script src="http://www.magic.ubc.ca/webgl-pg/uploads/examples/lib/cuon-utils.js"></script>
+		<script src="http://www.magic.ubc.ca/webgl-pg/uploads/examples/lib/cuon-matrix.js"></script>
+		<title> Project 1 </title>
+	</head>
+
+	<body onload="main()">
+
+		<canvas id="canv" width=500 height=500 >
+		Please use a browser that implements canvas.
+		</canvas> </br>
+
+		<!TODO move events out of html, do in js>
+		Theta: </br>
+		<input id="thetaslider" type="range" min="0" max="360" value="0" step="5"
+							onmousemove="thetaHandler(event)" /> </br>
+		Subdivisions: </br>
+	   	<input id="divisionslider" type="range" min="0" max="8" step="1" value="0"
+							onmousemove="divHandler(event)"	/> </br>
+
+		<form id="twistbuttons" onchange="twistHandler(event)">
+			Twist? </br>
+			No  <input type="radio" name="twistb" value="0.0"  checked/> 
+			Yes <input type="radio" name="twistb" value="1.0" /> </br>
+		</form>
+
+		<script type="x-shader/x-vertex" id="twist2-vertex">
+			precision mediump float;
+			attribute vec4 a_Position;
+			varying vec4 v_FragColor;
+			attribute vec4 a_FragColor;
+			float d;
+        uniform float u_theta;
+        uniform float u_twist;
+        void main() {
+        if(u_twist==1.0) {
+        d = sqrt(a_Position.x * a_Position.x + a_Position.y * a_Position.y);}
+        else d=1.0;
+        /'gl_Position = Rotated a_Position;
+        gl_Position.x = a_Position.x*cos(d*u_theta) - a_Position.y*sin(d*u_theta);
+        gl_Position.y = a_Position.x*sin(d*u_theta) + a_Position.y*cos(d*u_theta);
+        gl_Position.z = a_Position.z;\n' +
+        gl_Position.w = 1.0;\n' +
+        /assign varying fragcolor from colorBuffer
+        v_FragColor = a_FragColor;\n' +
+                }
+		</script>
+		<script type="x-shader/x-fragment" id="twist2-fragement">
+
+		</script>
+		<script src="p1.js"></script>
+	</body>
+</html>
+
+
