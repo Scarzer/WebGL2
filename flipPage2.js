@@ -34,7 +34,14 @@ function getMousePosition(){
     }
 }
 
-function drawCorner1(){};
+function drawCorner1(x, y){
+    // Folded Triangle
+    var bottom = new Array(2),
+        right  = new Array(2),
+        top    = new Array(2),
+        corner = new Array(2);
+
+};
 function drawCorner2(){};
 
 function compileShaders(ctx, vShaderID, fShaderID){
