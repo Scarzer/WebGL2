@@ -39,8 +39,26 @@ Page.prototype.init = function initPage(){
     this.refreshPage()
 };
 
+Page.prototype.drawTriangle = function(x, y){
 
-Page.prototype.refreshPage = function refreshPage(){
+    var triangleBuffer = gl.createBuffer();
+    var triangel = new Float32Array([
+        x, this.pointC[1],
+        x, y,
+        this.pointD[0], y
+    ]);
+
+    console.log("Boop")
+    var vPosition = gl.getAttribLocation(gl.program, 'vPosition');
+    gl.bindBuffer( gl.ARRAY_BUFFER, triangleBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, triangel, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(vPosition);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.LINE_LOOP,0,3);
+
+}
+
+Page.prototype.refreshPage = function refreshPage(x, y){
 
     var vPosition = gl.getAttribLocation(gl.program, 'vPosition');
     if (vPosition < 0){
@@ -51,6 +69,7 @@ Page.prototype.refreshPage = function refreshPage(){
     // Buffer stuffing and sending and drawing
 
     gl.clear(gl.COLOR_BUFFER_BIT);
+    this.drawTriangle(x, y)
     gl.bindBuffer( gl.ARRAY_BUFFER, this.leftPageBuffer);
     gl.bufferData( gl.ARRAY_BUFFER, this.leftPage, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(vPosition);
@@ -62,6 +81,21 @@ Page.prototype.refreshPage = function refreshPage(){
     gl.enableVertexAttribArray(vPosition);
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.LINE_LOOP, 0, this.rightPageVertexNum);
+
+    var triangleBuffer = gl.createBuffer();
+    var triangel = new Float32Array([
+        x, this.pointC[1],
+        x, y,
+        this.pointD[0], y
+    ]);
+
+    console.log("Boop")
+    var vPosition = gl.getAttribLocation(gl.program, 'vPosition');
+    gl.bindBuffer( gl.ARRAY_BUFFER, triangleBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, triangel, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(vPosition);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.LINE_LOOP,0,3);
 
 };
 
@@ -102,7 +136,12 @@ Page.prototype.cornerUpdate = function cornerUpdate(x, y){
             console.log("dy: " + dY + " " + "dx: " + dX);
             console.log("a: " + a + " " + "b: " + b);
             // set point variables
-            this.pointC[1] = y + a;
+
+            //if( !(( y + a) < (this.length - this.length)))
+                this.pointC[1] = y;
+
+            //if( !(( x - (a*dY/dX)) < (this.length - this.length) ) )
+                this.pointD[0] = x;
 
             this.rightPage = new Float32Array([
                 this.pointA[0], this.pointA[1],
@@ -112,7 +151,7 @@ Page.prototype.cornerUpdate = function cornerUpdate(x, y){
                 this.pointE[0], this.pointE[1]
             ]);
             this.rightPageVertexNum = this.rightPage.length/2;
-            this.refreshPage();
+            this.refreshPage(x, y);
         }
     }
     else if(x <= this.xStart && x > this.xStart-this.width){
@@ -130,8 +169,6 @@ Page.prototype.cornerUpdate = function cornerUpdate(x, y){
 var canvas = document.getElementById("pageFlip");
 var rect = canvas.getBoundingClientRect();
 var gl = canvas.getContext("webgl");
-
-
 compileShaders(gl, "pageFlip-vertex", "pageFlip-fragment");
 
 gl.clearColor(0,0,0,1);
